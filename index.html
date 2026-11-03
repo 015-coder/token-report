@@ -87,15 +87,32 @@
       color: var(--sub-text);
     }
 
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 18px;
+      margin-bottom: 10px;
+    }
+
     .section-title {
       font-weight: bold;
       color: var(--accent-color);
-      margin-top: 18px;
-      margin-bottom: 10px;
       font-size: 0.95rem;
       border-left: 4px solid var(--gold-color);
       padding-left: 8px;
       letter-spacing: 1px;
+    }
+
+    .unit-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .unit-header label {
+      margin-bottom: 0;
     }
 
     input[type="date"],
@@ -168,7 +185,6 @@
     }
 
     button {
-      flex: 1;
       padding: 10px;
       font-size: 0.92rem;
       font-weight: bold;
@@ -182,6 +198,17 @@
 
     button:hover {
       background-color: var(--accent-hover);
+    }
+
+    /* 各種クリアボタン用のミニスタイル */
+    .btn-sm {
+      padding: 3px 8px;
+      font-size: 0.75rem;
+      background-color: #8c1d40;
+      border-radius: 3px;
+    }
+    .btn-sm:hover {
+      background-color: #6a132f;
     }
 
     button.secondary {
@@ -324,10 +351,16 @@
       </div>
 
       <!-- 部隊編成（全5部隊） -->
-      <div class="section-title">部隊編成</div>
+      <div class="section-header">
+        <div class="section-title" style="margin-top:0;">部隊編成</div>
+        <button class="btn-sm" onclick="clearAllUnits()">全部隊クリア</button>
+      </div>
       
       <div class="form-group">
-        <label>第1部隊</label>
+        <div class="unit-header">
+          <label>第1部隊</label>
+          <button class="btn-sm secondary" onclick="clearUnit('unit1')">クリア</button>
+        </div>
         <div class="unit-grid">
           <input type="text" class="unit1 unit-leader" list="touken-list" placeholder="【隊長】">
           <input type="text" class="unit1" list="touken-list" placeholder="隊員2">
@@ -339,7 +372,10 @@
       </div>
 
       <div class="form-group">
-        <label>第2部隊</label>
+        <div class="unit-header">
+          <label>第2部隊</label>
+          <button class="btn-sm secondary" onclick="clearUnit('unit2')">クリア</button>
+        </div>
         <div class="unit-grid">
           <input type="text" class="unit2 unit-leader" list="touken-list" placeholder="【隊長】">
           <input type="text" class="unit2" list="touken-list" placeholder="隊員2">
@@ -351,7 +387,10 @@
       </div>
 
       <div class="form-group">
-        <label>第3部隊</label>
+        <div class="unit-header">
+          <label>第3部隊</label>
+          <button class="btn-sm secondary" onclick="clearUnit('unit3')">クリア</button>
+        </div>
         <div class="unit-grid">
           <input type="text" class="unit3 unit-leader" list="touken-list" placeholder="【隊長】">
           <input type="text" class="unit3" list="touken-list" placeholder="隊員2">
@@ -363,7 +402,10 @@
       </div>
 
       <div class="form-group">
-        <label>第4部隊</label>
+        <div class="unit-header">
+          <label>第4部隊</label>
+          <button class="btn-sm secondary" onclick="clearUnit('unit4')">クリア</button>
+        </div>
         <div class="unit-grid">
           <input type="text" class="unit4 unit-leader" list="touken-list" placeholder="【隊長】">
           <input type="text" class="unit4" list="touken-list" placeholder="隊員2">
@@ -375,7 +417,10 @@
       </div>
 
       <div class="form-group">
-        <label>第5部隊</label>
+        <div class="unit-header">
+          <label>第5部隊</label>
+          <button class="btn-sm secondary" onclick="clearUnit('unit5')">クリア</button>
+        </div>
         <div class="unit-grid">
           <input type="text" class="unit5 unit-leader" list="touken-list" placeholder="【隊長】">
           <input type="text" class="unit5" list="touken-list" placeholder="隊員2">
@@ -387,7 +432,10 @@
       </div>
 
       <!-- 遠征（セレクトボックス化） -->
-      <div class="section-title">遠征</div>
+      <div class="section-header">
+        <div class="section-title" style="margin-top:0;">遠征</div>
+        <button class="btn-sm" onclick="clearExpedition()">遠征クリア</button>
+      </div>
       <div class="form-group">
         <div class="two-cols" style="margin-bottom: 8px;">
           <div style="flex:1;">
@@ -465,7 +513,10 @@
       </div>
 
       <!-- 内番 -->
-      <div class="section-title">内番</div>
+      <div class="section-header">
+        <div class="section-title" style="margin-top:0;">内番</div>
+        <button class="btn-sm" onclick="clearNaiban()">内番クリア</button>
+      </div>
       <div class="form-group">
         <label>馬番</label>
         <div class="two-cols">
@@ -490,18 +541,30 @@
         </div>
       </div>
 
+      <!-- イベント -->
+      <div class="section-header">
+        <div class="section-title" style="margin-top:0;">イベント</div>
+        <button class="btn-sm" onclick="clearField('event')">クリア</button>
+      </div>
       <div class="form-group">
-        <label for="event">イベント</label>
         <textarea id="event" placeholder="イベントの進行状況や結果など"></textarea>
       </div>
 
+      <!-- 目標 -->
+      <div class="section-header">
+        <div class="section-title" style="margin-top:0;">目標</div>
+        <button class="btn-sm" onclick="clearField('goal')">クリア</button>
+      </div>
       <div class="form-group">
-        <label for="goal">目標</label>
         <textarea id="goal" placeholder="今日の目標やレベリング計画など"></textarea>
       </div>
 
+      <!-- 特記事項 -->
+      <div class="section-header">
+        <div class="section-title" style="margin-top:0;">特記事項</div>
+        <button class="btn-sm" onclick="clearField('notes')">クリア</button>
+      </div>
       <div class="form-group">
-        <label for="notes">特記事項</label>
         <textarea id="notes" placeholder="メモ、ドロップ結果など"></textarea>
       </div>
 
@@ -580,6 +643,48 @@
       inputs.forEach((input, index) => {
         input.value = (valuesArray && valuesArray[index]) ? valuesArray[index] : '';
       });
+    }
+
+    // 各部隊ごとのクリア機能
+    function clearUnit(unitClass) {
+      const inputs = document.querySelectorAll(`.${unitClass}`);
+      inputs.forEach(input => input.value = '');
+      updatePreview();
+    }
+
+    // 全部隊一括クリア機能
+    function clearAllUnits() {
+      for (let i = 1; i <= 5; i++) {
+        const inputs = document.querySelectorAll(`.unit${i}`);
+        inputs.forEach(input => input.value = '');
+      }
+      updatePreview();
+    }
+
+    // 遠征クリア機能
+    function clearExpedition() {
+      for (let i = 1; i <= 4; i++) {
+        document.getElementById(`exp-type-${i}`).value = '';
+        document.getElementById(`exp-unit-${i}`).value = '';
+      }
+      updatePreview();
+    }
+
+    // 内番クリア機能
+    function clearNaiban() {
+      document.getElementById('uma1').value = '';
+      document.getElementById('uma2').value = '';
+      document.getElementById('hata1').value = '';
+      document.getElementById('hata2').value = '';
+      document.getElementById('teawase1').value = '';
+      document.getElementById('teawase2').value = '';
+      updatePreview();
+    }
+
+    // 指定したテキストエリアのクリア機能
+    function clearField(id) {
+      document.getElementById(id).value = '';
+      updatePreview();
     }
 
     function getFormData() {
@@ -852,10 +957,7 @@
         currentEditId = null;
         setToday();
         document.querySelectorAll('input[type="text"], textarea').forEach(el => el.value = '');
-        for (let i = 1; i <= 4; i++) {
-          document.getElementById(`exp-type-${i}`).value = '';
-          document.getElementById(`exp-unit-${i}`).value = '';
-        }
+        clearExpedition();
         updatePreview();
       }
     }
