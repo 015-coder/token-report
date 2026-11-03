@@ -3,304 +3,901 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>本丸日報ツール</title>
+  <title>本丸日報作成・管理ツール</title>
   <style>
     :root {
-      --bg-color: #f4f6f9;
+      --bg-color: #f7f4ef;        /* 落ち着いた生成り（和紙風）背景 */
       --card-bg: #ffffff;
-      --primary-color: #4a6fa5;
-      --primary-hover: #385d91;
-      --border-color: #dcd6cd;
+      --accent-color: #8c1d40;    /* 臙脂（えんじ）色 */
+      --accent-hover: #6a132f;
+      --primary-blue: #2b4b6f;    /* 藍色 */
+      --primary-blue-hover: #1e354f;
+      --gold-color: #c5a059;      /* 黄金・金茶色 */
+      --border-color: #dcd6cd;    /* 伝統色風の枠線 */
       --text-color: #2b2b2b;
-      --sub-text: #666;
+      --sub-text: #665d52;
     }
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", "Meiryo", sans-serif;
       background-color: var(--bg-color);
       color: var(--text-color);
       margin: 0;
-      padding: 12px;
+      padding: 20px 12px;
+      display: flex;
+      justify-content: center;
     }
-    .container {
-      max-width: 600px;
-      margin: 0 auto;
+
+    .main-wrapper {
+      width: 100%;
+      max-width: 960px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
     }
-    h1 {
-      text-align: center;
-      font-size: 20px;
-      margin-bottom: 16px;
-      color: var(--primary-color);
+
+    @media (max-width: 768px) {
+      .main-wrapper {
+        grid-template-columns: 1fr;
+      }
     }
+
     .card {
-      background-color: var(--card-bg);
+      background: var(--card-bg);
       border: 1px solid var(--border-color);
       border-radius: 8px;
-      padding: 12px;
-      margin-bottom: 12px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      box-shadow: 0 4px 12px rgba(43, 75, 111, 0.05);
+      padding: 20px;
+      box-sizing: border-box;
+      height: fit-content;
     }
-    .date-area {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
+
+    h1 {
+      font-size: 1.3rem;
+      text-align: center;
+      color: var(--accent-color);
+      margin-top: 0;
+      margin-bottom: 20px;
+      border-bottom: 2px solid var(--gold-color);
+      padding-bottom: 8px;
+      letter-spacing: 2px;
     }
-    .date-area input[type="date"] {
-      padding: 6px;
-      font-size: 15px;
+
+    h2 {
+      font-size: 1.1rem;
+      color: var(--accent-color);
+      margin-top: 0;
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 6px;
+      letter-spacing: 1px;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 4px;
+      font-size: 0.88rem;
+      color: var(--sub-text);
+    }
+
+    .section-title {
+      font-weight: bold;
+      color: var(--accent-color);
+      margin-top: 18px;
+      margin-bottom: 10px;
+      font-size: 0.95rem;
+      border-left: 4px solid var(--gold-color);
+      padding-left: 8px;
+      letter-spacing: 1px;
+    }
+
+    input[type="date"],
+    input[type="text"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 8px 10px;
       border: 1px solid var(--border-color);
       border-radius: 4px;
+      font-size: 0.9rem;
+      box-sizing: border-box;
+      background-color: #faf9f6;
+      color: var(--text-color);
+      transition: border-color 0.2s, background-color 0.2s;
     }
-    .btn {
-      background-color: var(--primary-color);
-      color: white;
-      border: none;
-      padding: 8px 12px;
-      border-radius: 4px;
-      font-size: 14px;
-      cursor: pointer;
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent-color);
+      background-color: #ffffff;
     }
-    .btn:hover {
-      background-color: var(--primary-hover);
-    }
-    .section-title {
-      font-size: 15px;
-      font-weight: bold;
-      border-bottom: 2px solid var(--primary-color);
-      padding-bottom: 4px;
-      margin: 16px 0 8px 0;
-      color: var(--primary-color);
-    }
-    .form-group {
-      margin-bottom: 10px;
-    }
-    .form-group label {
-      display: block;
-      font-size: 13px;
-      color: var(--sub-text);
-      margin-bottom: 2px;
-    }
+
     .two-cols {
       display: flex;
       gap: 8px;
     }
-    input[type="text"], select {
-      width: 100%;
-      padding: 6px;
-      font-size: 14px;
-      border: 1px solid var(--border-color);
-      border-radius: 4px;
-      box-sizing: border-box;
-      background-color: #fff;
+
+    .two-cols input, .two-cols select {
+      flex: 1;
     }
+
     .select-pair {
       display: flex;
       gap: 4px;
     }
-    .action-bar {
-      text-align: center;
+
+    .unit-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 50px;
+    }
+
+    .btn-container {
       margin-top: 20px;
-      margin-bottom: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    button {
+      flex: 1;
+      padding: 10px;
+      font-size: 0.92rem;
+      font-weight: bold;
+      color: #fff;
+      background-color: var(--accent-color);
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    button:hover {
+      background-color: var(--accent-hover);
+    }
+
+    button.secondary {
+      background-color: #6c757d;
+    }
+
+    button.secondary:hover {
+      background-color: #5a6268;
+    }
+
+    button.info {
+      background-color: var(--primary-blue);
+    }
+
+    button.info:hover {
+      background-color: var(--primary-blue-hover);
+    }
+
+    button.danger {
+      background-color: #a94442;
+    }
+
+    button.danger:hover {
+      background-color: #843534;
+    }
+
+    .preview-box {
+      margin-top: 16px;
+      background: #faf9f6;
+      border: 1px dashed var(--border-color);
+      border-radius: 6px;
+      padding: 12px;
+      white-space: pre-wrap;
+      font-family: monospace;
+      font-size: 0.85rem;
+      max-height: 250px;
+      overflow-y: auto;
+    }
+
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 500px;
+      overflow-y: auto;
+      margin-bottom: 16px;
+    }
+
+    .history-item {
+      background: #faf9f6;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .history-info {
+      overflow: hidden;
+      cursor: pointer;
+      flex: 1;
+    }
+
+    .history-info:hover .history-date {
+      color: var(--accent-color);
+      text-decoration: underline;
+    }
+
+    .history-date {
+      font-weight: bold;
+      font-size: 0.9rem;
+    }
+
+    .history-summary {
+      font-size: 0.8rem;
+      color: var(--sub-text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .history-actions {
+      display: flex;
+      gap: 4px;
+    }
+
+    .history-actions button {
+      padding: 4px 8px;
+      font-size: 0.75rem;
+    }
+
+    .backup-section {
+      border-top: 1px solid var(--border-color);
+      padding-top: 14px;
+      margin-top: 14px;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(43, 75, 111, 0.9);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    .toast.show {
+      opacity: 1;
     }
   </style>
 </head>
 <body>
 
-<div class="container">
-  <h1>本丸日報ツール</h1>
+  <div class="main-wrapper">
+    <!-- 左側：入力フォーム -->
+    <div class="card">
+      <h1>本丸日報 入力</h1>
 
-  <!-- 日付・前日コピー -->
-  <div class="card date-area">
-    <div>
-      <label style="font-size:11px; color:#666;">日付</label>
-      <input type="date" id="report-date">
-    </div>
-    <button class="btn" id="btn-copy-prev">前日からコピー</button>
-  </div>
+      <div style="margin-bottom: 12px;">
+        <button class="info" onclick="copyFromPrevDay()" style="width: 100%;">前日のデータをコピー</button>
+      </div>
 
-  <!-- 遠征 -->
-  <div class="card">
-    <div class="section-title">遠征</div>
-    <div class="form-group">
-      <div class="two-cols" style="margin-bottom: 8px;">
-        <div style="flex:1;">
-          <label>遠征1</label>
-          <div class="select-pair">
-            <select id="exp-type-1">
-              <option value="">遠征選択</option>
-              <option value="1-1">1-1</option><option value="1-2">1-2</option><option value="1-3">1-3</option><option value="1-4">1-4</option>
-              <option value="2-1">2-1</option><option value="2-2">2-2</option><option value="2-3">2-3</option><option value="2-4">2-4</option>
-              <option value="3-1">3-1</option><option value="3-2">3-2</option><option value="3-3">3-3</option><option value="3-4">3-4</option>
-              <option value="4-1">4-1</option><option value="4-2">4-2</option><option value="4-3">4-3</option><option value="4-4">4-4</option>
-              <option value="5-1">5-1</option><option value="5-2">5-2</option><option value="5-3">5-3</option><option value="5-4">5-4</option>
-            </select>
-            <select id="exp-unit-1" style="width:90px;">
-              <option value="">部隊</option>
-              <option value="第1部隊">第1部隊</option><option value="第2部隊">第2部隊</option><option value="第3部隊">第3部隊</option><option value="第4部隊">第4部隊</option><option value="第5部隊">第5部隊</option>
-            </select>
+      <div class="form-group">
+        <label for="date">日付</label>
+        <input type="date" id="date">
+      </div>
+
+      <div class="form-group">
+        <label for="kinji">近侍</label>
+        <input type="text" id="kinji" list="touken-list" placeholder="近侍の刀剣男士を入力">
+      </div>
+
+      <!-- 部隊編成（全5部隊） -->
+      <div class="section-title">部隊編成</div>
+      
+      <div class="form-group">
+        <label>第1部隊</label>
+        <div class="unit-grid">
+          <input type="text" class="unit1" list="touken-list" placeholder="隊長">
+          <input type="text" class="unit1" list="touken-list" placeholder="隊員2">
+          <input type="text" class="unit1" list="touken-list" placeholder="隊員3">
+          <input type="text" class="unit1" list="touken-list" placeholder="隊員4">
+          <input type="text" class="unit1" list="touken-list" placeholder="隊員5">
+          <input type="text" class="unit1" list="touken-list" placeholder="隊員6">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>第2部隊</label>
+        <div class="unit-grid">
+          <input type="text" class="unit2" list="touken-list" placeholder="隊長">
+          <input type="text" class="unit2" list="touken-list" placeholder="隊員2">
+          <input type="text" class="unit2" list="touken-list" placeholder="隊員3">
+          <input type="text" class="unit2" list="touken-list" placeholder="隊員4">
+          <input type="text" class="unit2" list="touken-list" placeholder="隊員5">
+          <input type="text" class="unit2" list="touken-list" placeholder="隊員6">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>第3部隊</label>
+        <div class="unit-grid">
+          <input type="text" class="unit3" list="touken-list" placeholder="隊長">
+          <input type="text" class="unit3" list="touken-list" placeholder="隊員2">
+          <input type="text" class="unit3" list="touken-list" placeholder="隊員3">
+          <input type="text" class="unit3" list="touken-list" placeholder="隊員4">
+          <input type="text" class="unit3" list="touken-list" placeholder="隊員5">
+          <input type="text" class="unit3" list="touken-list" placeholder="隊員6">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>第4部隊</label>
+        <div class="unit-grid">
+          <input type="text" class="unit4" list="touken-list" placeholder="隊長">
+          <input type="text" class="unit4" list="touken-list" placeholder="隊員2">
+          <input type="text" class="unit4" list="touken-list" placeholder="隊員3">
+          <input type="text" class="unit4" list="touken-list" placeholder="隊員4">
+          <input type="text" class="unit4" list="touken-list" placeholder="隊員5">
+          <input type="text" class="unit4" list="touken-list" placeholder="隊員6">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>第5部隊</label>
+        <div class="unit-grid">
+          <input type="text" class="unit5" list="touken-list" placeholder="隊長">
+          <input type="text" class="unit5" list="touken-list" placeholder="隊員2">
+          <input type="text" class="unit5" list="touken-list" placeholder="隊員3">
+          <input type="text" class="unit5" list="touken-list" placeholder="隊員4">
+          <input type="text" class="unit5" list="touken-list" placeholder="隊員5">
+          <input type="text" class="unit5" list="touken-list" placeholder="隊員6">
+        </div>
+      </div>
+
+      <!-- 遠征（セレクトボックス化） -->
+      <div class="section-title">遠征</div>
+      <div class="form-group">
+        <div class="two-cols" style="margin-bottom: 8px;">
+          <div style="flex:1;">
+            <label style="font-size:12px;">遠征1</label>
+            <div class="select-pair">
+              <select id="exp-type-1">
+                <option value="">遠征選択</option>
+                <option value="1-1">1-1</option><option value="1-2">1-2</option><option value="1-3">1-3</option><option value="1-4">1-4</option>
+                <option value="2-1">2-1</option><option value="2-2">2-2</option><option value="2-3">2-3</option><option value="2-4">2-4</option>
+                <option value="3-1">3-1</option><option value="3-2">3-2</option><option value="3-3">3-3</option><option value="3-4">3-4</option>
+                <option value="4-1">4-1</option><option value="4-2">4-2</option><option value="4-3">4-3</option><option value="4-4">4-4</option>
+                <option value="5-1">5-1</option><option value="5-2">5-2</option><option value="5-3">5-3</option><option value="5-4">5-4</option>
+              </select>
+              <select id="exp-unit-1" style="width:90px;">
+                <option value="">部隊</option>
+                <option value="第1部隊">第1部隊</option><option value="第2部隊">第2部隊</option><option value="第3部隊">第3部隊</option><option value="第4部隊">第4部隊</option><option value="第5部隊">第5部隊</option>
+              </select>
+            </div>
+          </div>
+          <div style="flex:1;">
+            <label style="font-size:12px;">遠征2</label>
+            <div class="select-pair">
+              <select id="exp-type-2">
+                <option value="">遠征選択</option>
+                <option value="1-1">1-1</option><option value="1-2">1-2</option><option value="1-3">1-3</option><option value="1-4">1-4</option>
+                <option value="2-1">2-1</option><option value="2-2">2-2</option><option value="2-3">2-3</option><option value="2-4">2-4</option>
+                <option value="3-1">3-1</option><option value="3-2">3-2</option><option value="3-3">3-3</option><option value="3-4">3-4</option>
+                <option value="4-1">4-1</option><option value="4-2">4-2</option><option value="4-3">4-3</option><option value="4-4">4-4</option>
+                <option value="5-1">5-1</option><option value="5-2">5-2</option><option value="5-3">5-3</option><option value="5-4">5-4</option>
+              </select>
+              <select id="exp-unit-2" style="width:90px;">
+                <option value="">部隊</option>
+                <option value="第1部隊">第1部隊</option><option value="第2部隊">第2部隊</option><option value="第3部隊">第3部隊</option><option value="第4部隊">第4部隊</option><option value="第5部隊">第5部隊</option>
+              </select>
+            </div>
           </div>
         </div>
-        <div style="flex:1;">
-          <label>遠征2</label>
-          <div class="select-pair">
-            <select id="exp-type-2">
-              <option value="">遠征選択</option>
-              <option value="1-1">1-1</option><option value="1-2">1-2</option><option value="1-3">1-3</option><option value="1-4">1-4</option>
-              <option value="2-1">2-1</option><option value="2-2">2-2</option><option value="2-3">2-3</option><option value="2-4">2-4</option>
-              <option value="3-1">3-1</option><option value="3-2">3-2</option><option value="3-3">3-3</option><option value="3-4">3-4</option>
-              <option value="4-1">4-1</option><option value="4-2">4-2</option><option value="4-3">4-3</option><option value="4-4">4-4</option>
-              <option value="5-1">5-1</option><option value="5-2">5-2</option><option value="5-3">5-3</option><option value="5-4">5-4</option>
-            </select>
-            <select id="exp-unit-2" style="width:90px;">
-              <option value="">部隊</option>
-              <option value="第1部隊">第1部隊</option><option value="第2部隊">第2部隊</option><option value="第3部隊">第3部隊</option><option value="第4部隊">第4部隊</option><option value="第5部隊">第5部隊</option>
-            </select>
+
+        <div class="two-cols">
+          <div style="flex:1;">
+            <label style="font-size:12px;">遠征3</label>
+            <div class="select-pair">
+              <select id="exp-type-3">
+                <option value="">遠征選択</option>
+                <option value="1-1">1-1</option><option value="1-2">1-2</option><option value="1-3">1-3</option><option value="1-4">1-4</option>
+                <option value="2-1">2-1</option><option value="2-2">2-2</option><option value="2-3">2-3</option><option value="2-4">2-4</option>
+                <option value="3-1">3-1</option><option value="3-2">3-2</option><option value="3-3">3-3</option><option value="3-4">3-4</option>
+                <option value="4-1">4-1</option><option value="4-2">4-2</option><option value="4-3">4-3</option><option value="4-4">4-4</option>
+                <option value="5-1">5-1</option><option value="5-2">5-2</option><option value="5-3">5-3</option><option value="5-4">5-4</option>
+              </select>
+              <select id="exp-unit-3" style="width:90px;">
+                <option value="">部隊</option>
+                <option value="第1部隊">第1部隊</option><option value="第2部隊">第2部隊</option><option value="第3部隊">第3部隊</option><option value="第4部隊">第4部隊</option><option value="第5部隊">第5部隊</option>
+              </select>
+            </div>
+          </div>
+          <div style="flex:1;">
+            <label style="font-size:12px;">遠征4</label>
+            <div class="select-pair">
+              <select id="exp-type-4">
+                <option value="">遠征選択</option>
+                <option value="1-1">1-1</option><option value="1-2">1-2</option><option value="1-3">1-3</option><option value="1-4">1-4</option>
+                <option value="2-1">2-1</option><option value="2-2">2-2</option><option value="2-3">2-3</option><option value="2-4">2-4</option>
+                <option value="3-1">3-1</option><option value="3-2">3-2</option><option value="3-3">3-3</option><option value="3-4">3-4</option>
+                <option value="4-1">4-1</option><option value="4-2">4-2</option><option value="4-3">4-3</option><option value="4-4">4-4</option>
+                <option value="5-1">5-1</option><option value="5-2">5-2</option><option value="5-3">5-3</option><option value="5-4">5-4</option>
+              </select>
+              <select id="exp-unit-4" style="width:90px;">
+                <option value="">部隊</option>
+                <option value="第1部隊">第1部隊</option><option value="第2部隊">第2部隊</option><option value="第3部隊">第3部隊</option><option value="第4部隊">第4部隊</option><option value="第5部隊">第5部隊</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>
-      <div class="two-cols">
-        <div style="flex:1;">
-          <label>遠征3</label>
-          <div class="select-pair">
-            <select id="exp-type-3">
-              <option value="">遠征選択</option>
-              <option value="1-1">1-1</option><option value="1-2">1-2</option><option value="1-3">1-3</option><option value="1-4">1-4</option>
-              <option value="2-1">2-1</option><option value="2-2">2-2</option><option value="2-3">2-3</option><option value="2-4">2-4</option>
-              <option value="3-1">3-1</option><option value="3-2">3-2</option><option value="3-3">3-3</option><option value="3-4">3-4</option>
-              <option value="4-1">4-1</option><option value="4-2">4-2</option><option value="4-3">4-3</option><option value="4-4">4-4</option>
-              <option value="5-1">5-1</option><option value="5-2">5-2</option><option value="5-3">5-3</option><option value="5-4">5-4</option>
-            </select>
-            <select id="exp-unit-3" style="width:90px;">
-              <option value="">部隊</option>
-              <option value="第1部隊">第1部隊</option><option value="第2部隊">第2部隊</option><option value="第3部隊">第3部隊</option><option value="第4部隊">第4部隊</option><option value="第5部隊">第5部隊</option>
-            </select>
-          </div>
+
+      <!-- 内番 -->
+      <div class="section-title">内番</div>
+      <div class="form-group">
+        <label>馬番</label>
+        <div class="two-cols">
+          <input type="text" id="uma1" list="touken-list" placeholder="刀剣男士1">
+          <input type="text" id="uma2" list="touken-list" placeholder="刀剣男士2">
         </div>
-        <div style="flex:1;">
-          <label>遠征4</label>
-          <div class="select-pair">
-            <select id="exp-type-4">
-              <option value="">遠征選択</option>
-              <option value="1-1">1-1</option><option value="1-2">1-2</option><option value="1-3">1-3</option><option value="1-4">1-4</option>
-              <option value="2-1">2-1</option><option value="2-2">2-2</option><option value="2-3">2-3</option><option value="2-4">2-4</option>
-              <option value="3-1">3-1</option><option value="3-2">3-2</option><option value="3-3">3-3</option><option value="3-4">3-4</option>
-              <option value="4-1">4-1</option><option value="4-2">4-2</option><option value="4-3">4-3</option><option value="4-4">4-4</option>
-              <option value="5-1">5-1</option><option value="5-2">5-2</option><option value="5-3">5-3</option><option value="5-4">5-4</option>
-            </select>
-            <select id="exp-unit-4" style="width:90px;">
-              <option value="">部隊</option>
-              <option value="第1部隊">第1部隊</option><option value="第2部隊">第2部隊</option><option value="第3部隊">第3部隊</option><option value="第4部隊">第4部隊</option><option value="第5部隊">第5部隊</option>
-            </select>
-          </div>
+      </div>
+
+      <div class="form-group">
+        <label>畑番</label>
+        <div class="two-cols">
+          <input type="text" id="hata1" list="touken-list" placeholder="刀剣男士1">
+          <input type="text" id="hata2" list="touken-list" placeholder="刀剣男士2">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>手合わせ</label>
+        <div class="two-cols">
+          <input type="text" id="teawase1" list="touken-list" placeholder="刀剣男士1">
+          <input type="text" id="teawase2" list="touken-list" placeholder="刀剣男士2">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="event">イベント</label>
+        <textarea id="event" placeholder="イベントの進行状況や結果など"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="goal">目標</label>
+        <textarea id="goal" placeholder="今日の目標やレベリング計画など"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="notes">特記事項</label>
+        <textarea id="notes" placeholder="メモ、ドロップ結果など"></textarea>
+      </div>
+
+      <div class="btn-container">
+        <div class="btn-row">
+          <button onclick="saveReport()">日報を保存</button>
+          <button onclick="copyToClipboard()">コピーのみ</button>
+        </div>
+        <button class="secondary" onclick="resetForm()">新規入力をクリア</button>
+      </div>
+
+      <div class="preview-box" id="preview"></div>
+    </div>
+
+    <!-- 右側：保存履歴・管理 -->
+    <div class="card">
+      <h2>保存された日報一覧</h2>
+      <div id="historyList" class="history-list">
+        <!-- 履歴がここにJavaScriptで動的に追加されます -->
+      </div>
+
+      <div class="backup-section">
+        <h2>データ管理（バックアップ）</h2>
+        <div class="btn-row">
+          <button class="secondary" onclick="exportData()">ファイル出力</button>
+          <button class="secondary" onclick="document.getElementById('importFile').click()">ファイル読込</button>
+          <input type="file" id="importFile" style="display:none" accept=".json" onchange="importData(event)">
         </div>
       </div>
     </div>
   </div>
 
-  <div class="action-bar">
-    <button class="btn" id="btn-save" style="padding: 10px 24px; font-size: 16px;">保存する</button>
-  </div>
-</div>
+  <div id="toast" class="toast">保存しました！</div>
 
-<script>
-  // 本日の日付をデフォルト設定
-  const dateInput = document.getElementById('report-date');
-  const todayStr = new Date().toISOString().split('T')[0];
-  dateInput.value = todayStr;
+  <!-- 刀剣男士の検索候補datalist -->
+  <datalist id="touken-list">
+    <option value="童子切安綱"><option value="三日月宗近"><option value="小狐丸"><option value="石切丸"><option value="岩融"><option value="今剣"><option value="大典太光世"><option value="ソハヤノツルキ"><option value="数珠丸恒次"><option value="にっかり青江"><option value="鬼丸国綱"><option value="鳴狐"><option value="一期一振"><option value="鯰尾藤四郎"><option value="骨喰藤四郎"><option value="平野藤四郎"><option value="厚藤四郎"><option value="後藤藤四郎"><option value="信濃藤四郎"><option value="前田藤四郎"><option value="秋田藤四郎"><option value="博多藤四郎"><option value="乱藤四郎"><option value="五虎退"><option value="薬研藤四郎"><option value="包丁藤四郎"><option value="大包平"><option value="鶯丸"><option value="明石国行"><option value="蛍丸"><option value="愛染国俊"><option value="千子村正"><option value="蜻蛉切"><option value="物吉貞宗"><option value="太鼓鐘貞宗"><option value="亀甲貞宗"><option value="燭台切光忠"><option value="大般若長光"><option value="小竜景光"><option value="江雪左文字"><option value="宗三左文字"><option value="小夜左文字"><option value="加州清光"><option value="大和守安定"><option value="歌仙兼定"><option value="和泉守兼定"><option value="陸奥守吉行"><option value="山姥切国広"><option value="山伏国広"><option value="堀川国広"><option value="蜂須賀虎徹"><option value="浦島虎徹"><option value="長曽祢虎徹"><option value="髭切"><option value="膝丸"><option value="大倶利伽羅"><option value="へし切長谷部"><option value="不動行光"><option value="獅子王"><option value="小烏丸"><option value="同田貫正国"><option value="鶴丸国永"><option value="太郎太刀"><option value="次郎太刀"><option value="日本号"><option value="御手杵"><option value="巴形薙刀"><option value="毛利藤四郎"><option value="篭手切江"><option value="謙信景光"><option value="小豆長光"><option value="日向正宗"><option value="静形薙刀"><option value="南泉一文字"><option value="千代金丸"><option value="山姥切長義"><option value="豊前江"><option value="祢々切丸"><option value="白山吉光"><option value="南海太郎朝尊"><option value="肥前忠広"><option value="北谷菜切"><option value="桑名江"><option value="水心子正秀"><option value="源清麿"><option value="松井江"><option value="山鳥毛"><option value="古今伝授の太刀"><option value="地蔵行平"><option value="治金丸"><option value="日光一文字"><option value="太閤左文字"><option value="五月雨江"><option value="大千鳥十文字槍"><option value="泛塵"><option value="一文字則宗"><option value="村雲江"><option value="姫鶴一文字"><option value="福島光忠"><option value="七星剣"><option value="稲葉江"><option value="笹貫"><option value="抜丸"><option value="人間無骨"><option value="八丁念仏"><option value="石田貞宗"><option value="実休光忠"><option value="京極正宗"><option value="孫六兼元"><option value="後家兼光"><option value="火車切"><option value="富田江"><option value="大慶直胤"><option value="九鬼正宗"><option value="雲生"><option value="雲次"><option value="雲重"><option value="道誉一文字"><option value="面影"><option value="古備前信房"><option value="倶利伽羅江"><option value="三郎国宗"><option value="安宅切"><option value="二筋樋貞宗"><option value="柏太刀"><option value="波平行安"><option value="狐ヶ崎為次"><option value="桃太郎祐定"><option value="朝倉藤四郎">
+  </datalist>
 
-  // ストレージキー生成
-  function getKey(date) {
-    return 'honmaru_report_' + date;
-  }
+  <script>
+    let currentEditId = null; // 編集中の日報ID（新規の場合はnull）
 
-  // データの読み込み
-  function loadReport(date) {
-    const saved = localStorage.getItem(getKey(date));
-    if (saved) {
-      try {
-        const data = JSON.parse(saved);
-        document.getElementById('exp-type-1').value = data.exp1Type || '';
-        document.getElementById('exp-unit-1').value = data.exp1Unit || '';
-        document.getElementById('exp-type-2').value = data.exp2Type || '';
-        document.getElementById('exp-unit-2').value = data.exp2Unit || '';
-        document.getElementById('exp-type-3').value = data.exp3Type || '';
-        document.getElementById('exp-unit-3').value = data.exp3Unit || '';
-        document.getElementById('exp-type-4').value = data.exp4Type || '';
-        document.getElementById('exp-unit-4').value = data.exp4Unit || '';
-      } catch (e) {
-        console.error('データ読み込みエラー', e);
+    // 初期化
+    document.addEventListener('DOMContentLoaded', () => {
+      setToday();
+      loadHistory();
+      updatePreview();
+    });
+
+    function setToday() {
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      document.getElementById('date').value = `${yyyy}-${mm}-${dd}`;
+    }
+
+    // 入力変更時にプレビューを更新
+    document.addEventListener('input', (e) => {
+      if (e.target.matches('input, select, textarea')) {
+        updatePreview();
       }
-    } else {
-      clearForm();
+    });
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '';
+      const parts = dateStr.split('-');
+      return `${parts[0]}.${parts[1]}.${parts[2]}`;
     }
-  }
 
-  // フォームクリア
-  function clearForm() {
-    for (let i = 1; i <= 4; i++) {
-      document.getElementById(`exp-type-${i}`).value = '';
-      document.getElementById(`exp-unit-${i}`).value = '';
+    // 部隊の入力値を取得
+    function getUnitValues(unitClass) {
+      const inputs = document.querySelectorAll(`.${unitClass}`);
+      return Array.from(inputs).map(input => input.value);
     }
-  }
 
-  // データの保存
-  function saveReport() {
-    const date = dateInput.value;
-    if (!date) return;
+    // 部隊の入力値を設定
+    function setUnitValues(unitClass, valuesArray) {
+      const inputs = document.querySelectorAll(`.${unitClass}`);
+      inputs.forEach((input, index) => {
+        input.value = (valuesArray && valuesArray[index]) ? valuesArray[index] : '';
+      });
+    }
 
-    const data = {
-      exp1Type: document.getElementById('exp-type-1').value,
-      exp1Unit: document.getElementById('exp-unit-1').value,
-      exp2Type: document.getElementById('exp-type-2').value,
-      exp2Unit: document.getElementById('exp-unit-2').value,
-      exp3Type: document.getElementById('exp-type-3').value,
-      exp3Unit: document.getElementById('exp-unit-3').value,
-      exp4Type: document.getElementById('exp-type-4').value,
-      exp4Unit: document.getElementById('exp-unit-4').value,
-    };
+    function getFormData() {
+      return {
+        id: currentEditId || 'report_' + Date.now(),
+        date: document.getElementById('date').value,
+        kinji: document.getElementById('kinji').value,
+        units: {
+          u1: getUnitValues('unit1'),
+          u2: getUnitValues('unit2'),
+          u3: getUnitValues('unit3'),
+          u4: getUnitValues('unit4'),
+          u5: getUnitValues('unit5')
+        },
+        expedition: {
+          e1Type: document.getElementById('exp-type-1').value,
+          e1Unit: document.getElementById('exp-unit-1').value,
+          e2Type: document.getElementById('exp-type-2').value,
+          e2Unit: document.getElementById('exp-unit-2').value,
+          e3Type: document.getElementById('exp-type-3').value,
+          e3Unit: document.getElementById('exp-unit-3').value,
+          e4Type: document.getElementById('exp-type-4').value,
+          e4Unit: document.getElementById('exp-unit-4').value,
+        },
+        uma1: document.getElementById('uma1').value,
+        uma2: document.getElementById('uma2').value,
+        hata1: document.getElementById('hata1').value,
+        hata2: document.getElementById('hata2').value,
+        teawase1: document.getElementById('teawase1').value,
+        teawase2: document.getElementById('teawase2').value,
+        event: document.getElementById('event').value,
+        goal: document.getElementById('goal').value,
+        notes: document.getElementById('notes').value,
+        updatedAt: new Date().toLocaleString()
+      };
+    }
 
-    localStorage.setItem(getKey(date), JSON.stringify(data));
-    alert('保存しました！');
-  }
+    function generateReportText(data) {
+      const formattedDate = formatDate(data.date);
+      let text = `【本丸日報】\n`;
+      text += `■ 日付：${formattedDate}\n`;
+      text += `■ 近侍：${data.kinji}\n\n`;
 
-  // 前日のデータをコピー
-  function copyFromPrevious() {
-    const currentDate = new Date(dateInput.value);
-    currentDate.setDate(currentDate.getDate() - 1);
-    const prevDateStr = currentDate.toISOString().split('T')[0];
-
-    const saved = localStorage.getItem(getKey(prevDateStr));
-    if (saved) {
-      try {
-        const data = JSON.parse(saved);
-        document.getElementById('exp-type-1').value = data.exp1Type || '';
-        document.getElementById('exp-unit-1').value = data.exp1Unit || '';
-        document.getElementById('exp-type-2').value = data.exp2Type || '';
-        document.getElementById('exp-unit-2').value = data.exp2Unit || '';
-        document.getElementById('exp-type-3').value = data.exp3Type || '';
-        document.getElementById('exp-unit-3').value = data.exp3Unit || '';
-        document.getElementById('exp-type-4').value = data.exp4Type || '';
-        document.getElementById('exp-unit-4').value = data.exp4Unit || '';
-        alert(prevDateStr + ' のデータをコピーしました！');
-      } catch (e) {
-        alert('前日データの読み込みに失敗しました。');
+      // 部隊編成テキスト生成
+      let unitText = '';
+      for (let i = 1; i <= 5; i++) {
+        const uKey = `u${i}`;
+        const members = data.units && data.units[uKey] ? data.units[uKey].filter(m => m.trim() !== '') : [];
+        if (members.length > 0) {
+          unitText += `・第${i}部隊：${members.join(' / ')}\n`;
+        }
       }
-    } else {
-      alert('前日（' + prevDateStr + '）の保存データが見つかりません。');
+      if (unitText) {
+        text += `■ 部隊編成\n${unitText}\n`;
+      }
+
+      // 遠征テキスト生成
+      let enseiText = '';
+      if (data.expedition) {
+        for (let i = 1; i <= 4; i++) {
+          const type = data.expedition[`e${i}Type`];
+          const unit = data.expedition[`e${i}Unit`];
+          if (type || unit) {
+            enseiText += `・遠征${i}：${type || '未選択'}（${unit || '未選択'}）\n`;
+          }
+        }
+      }
+      if (enseiText) {
+        text += `■ 遠征\n${enseiText}\n`;
+      }
+
+      text += `■ 内番\n`;
+      text += `・馬番：${data.uma1}${data.uma1 && data.uma2 ? ' / ' : ''}${data.uma2}\n`;
+      text += `・畑番：${data.hata1}${data.hata1 && data.hata2 ? ' / ' : ''}${data.hata2}\n`;
+      text += `・手合わせ：${data.teawase1}${data.teawase1 && data.teawase2 ? ' / ' : ''}${data.teawase2}\n\n`;
+
+      text += `■ イベント\n${data.event}\n\n`;
+      text += `■ 目標\n${data.goal}\n\n`;
+      text += `■ 特記事項\n${data.notes}`;
+
+      return text;
     }
-  }
 
-  // イベントリスナー
-  dateInput.addEventListener('change', (e) => {
-    loadReport(e.target.value);
-  });
+    function updatePreview() {
+      const data = getFormData();
+      document.getElementById('preview').textContent = generateReportText(data);
+    }
 
-  document.getElementById('btn-save').addEventListener('click', saveReport);
-  document.getElementById('btn-copy-prev').addEventListener('click', copyFromPrevious);
+    function getAllReports() {
+      const data = localStorage.getItem('touken_reports');
+      return data ? JSON.parse(data) : {};
+    }
 
-  // 初期読み込み
-  loadReport(dateInput.value);
-</script>
+    // 前日のデータからコピーする機能
+    function copyFromPrevDay() {
+      const currentDateVal = document.getElementById('date').value;
+      if (!currentDateVal) {
+        alert('日付を選択してください。');
+        return;
+      }
 
+      const currentDate = new Date(currentDateVal);
+      currentDate.setDate(currentDate.getDate() - 1);
+      const yyyy = currentDate.getFullYear();
+      const mm = String(currentDate.getMonth() + 1).padStart(2, '0');
+      const dd = String(currentDate.getDate()).padStart(2, '0');
+      const prevDateStr = `${yyyy}-${mm}-${dd}`;
+
+      const reports = getAllReports();
+      const prevReportKey = Object.keys(reports).find(key => reports[key].date === prevDateStr);
+
+      if (!prevReportKey) {
+        alert(`前日 (${prevDateStr}) の保存データが見つかりませんでした。`);
+        return;
+      }
+
+      const prevReport = reports[prevReportKey];
+
+      document.getElementById('kinji').value = prevReport.kinji || '';
+      
+      if (prevReport.units) {
+        setUnitValues('unit1', prevReport.units.u1);
+        setUnitValues('unit2', prevReport.units.u2);
+        setUnitValues('unit3', prevReport.units.u3);
+        setUnitValues('unit4', prevReport.units.u4);
+        setUnitValues('unit5', prevReport.units.u5);
+      }
+
+      if (prevReport.expedition) {
+        for (let i = 1; i <= 4; i++) {
+          document.getElementById(`exp-type-${i}`).value = prevReport.expedition[`e${i}Type`] || '';
+          document.getElementById(`exp-unit-${i}`).value = prevReport.expedition[`e${i}Unit`] || '';
+        }
+      }
+
+      document.getElementById('uma1').value = prevReport.uma1 || '';
+      document.getElementById('uma2').value = prevReport.uma2 || '';
+      document.getElementById('hata1').value = prevReport.hata1 || '';
+      document.getElementById('hata2').value = prevReport.hata2 || '';
+      document.getElementById('teawase1').value = prevReport.teawase1 || '';
+      document.getElementById('teawase2').value = prevReport.teawase2 || '';
+
+      updatePreview();
+      showToast('前日のデータを読み込みました');
+    }
+
+    function saveReport() {
+      const data = getFormData();
+      if (!data.date) {
+        alert('日付を入力してください。');
+        return;
+      }
+
+      const reports = getAllReports();
+      reports[data.id] = data;
+      localStorage.setItem('touken_reports', JSON.stringify(reports));
+
+      showToast('保存しました！');
+      loadHistory();
+      
+      navigator.clipboard.writeText(generateReportText(data)).catch(() => {});
+    }
+
+    function loadHistory() {
+      const reports = getAllReports();
+      const listContainer = document.getElementById('historyList');
+      listContainer.innerHTML = '';
+
+      const sortedIds = Object.keys(reports).sort((a, b) => {
+        return reports[b].date.localeCompare(reports[a].date);
+      });
+
+      if (sortedIds.length === 0) {
+        listContainer.innerHTML = '<div style="color: var(--sub-text); font-size: 0.85rem; text-align: center; padding: 20px;">保存された日報はありません</div>';
+        return;
+      }
+
+      sortedIds.forEach(id => {
+        const report = reports[id];
+        const item = document.createElement('div');
+        item.className = 'history-item';
+        
+        item.innerHTML = `
+          <div class="history-info" onclick="editReport('${id}')">
+            <div class="history-date">${formatDate(report.date)} (近侍: ${report.kinji || '未設定'})</div>
+            <div class="history-summary">イベント: ${report.event || 'なし'}</div>
+          </div>
+          <div class="history-actions">
+            <button onclick="copySpecific('${id}')">コピー</button>
+            <button class="danger" onclick="deleteReport('${id}')">削除</button>
+          </div>
+        `;
+        listContainer.appendChild(item);
+      });
+    }
+
+    function editReport(id) {
+      const reports = getAllReports();
+      const report = reports[id];
+      if (!report) return;
+
+      currentEditId = report.id;
+      document.getElementById('date').value = report.date || '';
+      document.getElementById('kinji').value = report.kinji || '';
+
+      if (report.units) {
+        setUnitValues('unit1', report.units.u1);
+        setUnitValues('unit2', report.units.u2);
+        setUnitValues('unit3', report.units.u3);
+        setUnitValues('unit4', report.units.u4);
+        setUnitValues('unit5', report.units.u5);
+      } else {
+        setUnitValues('unit1', []); setUnitValues('unit2', []); setUnitValues('unit3', []); setUnitValues('unit4', []); setUnitValues('unit5', []);
+      }
+
+      if (report.expedition) {
+        for (let i = 1; i <= 4; i++) {
+          document.getElementById(`exp-type-${i}`).value = report.expedition[`e${i}Type`] || '';
+          document.getElementById(`exp-unit-${i}`).value = report.expedition[`e${i}Unit`] || '';
+        }
+      } else {
+        for (let i = 1; i <= 4; i++) {
+          document.getElementById(`exp-type-${i}`).value = '';
+          document.getElementById(`exp-unit-${i}`).value = '';
+        }
+      }
+
+      document.getElementById('uma1').value = report.uma1 || '';
+      document.getElementById('uma2').value = report.uma2 || '';
+      document.getElementById('hata1').value = report.hata1 || '';
+      document.getElementById('hata2').value = report.hata2 || '';
+      document.getElementById('teawase1').value = report.teawase1 || '';
+      document.getElementById('teawase2').value = report.teawase2 || '';
+      document.getElementById('event').value = report.event || '';
+      document.getElementById('goal').value = report.goal || '';
+      document.getElementById('notes').value = report.notes || '';
+
+      updatePreview();
+      showToast('編集モード：保存すると上書きされます');
+    }
+
+    function copySpecific(id) {
+      const reports = getAllReports();
+      const report = reports[id];
+      if (!report) return;
+
+      const text = generateReportText(report);
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('コピーしました！');
+      });
+    }
+
+    function deleteReport(id) {
+      if (confirm('この日報データを削除しますか？')) {
+        const reports = getAllReports();
+        delete reports[id];
+        localStorage.setItem('touken_reports', JSON.stringify(reports));
+        loadHistory();
+        showToast('削除しました');
+      }
+    }
+
+    function copyToClipboard() {
+      const data = getFormData();
+      const text = generateReportText(data);
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('コピーしました！');
+      });
+    }
+
+    function resetForm() {
+      if (confirm('入力内容をクリアして新規作成モードにしますか？')) {
+        currentEditId = null;
+        setToday();
+        document.querySelectorAll('input[type="text"], textarea').forEach(el => el.value = '');
+        for (let i = 1; i <= 4; i++) {
+          document.getElementById(`exp-type-${i}`).value = '';
+          document.getElementById(`exp-unit-${i}`).value = '';
+        }
+        updatePreview();
+      }
+    }
+
+    function exportData() {
+      const reports = localStorage.getItem('touken_reports') || '{}';
+      const blob = new Blob([reports], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `touken_reports_backup_${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('バックアップを出力しました');
+    }
+
+    function importData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (typeof imported === 'object') {
+            localStorage.setItem('touken_reports', JSON.stringify(imported));
+            loadHistory();
+            showToast('データを読み込みました');
+          } else {
+            alert('ファイルの形式が正しくありません。');
+          }
+        } catch (err) {
+          alert('ファイルの読み込みに失敗しました。');
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2000);
+    }
+  </script>
 </body>
 </html>
