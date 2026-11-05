@@ -18,6 +18,9 @@
       --border-color: #dcd6cd;
       --text-color: #2b2b2b;
       --sub-text: #665d52;
+      /* 連続勤務警告用のオレンジカラー */
+      --warning-bg: #fff3e0;
+      --warning-border: #f57c00;
     }
 
     body {
@@ -140,6 +143,12 @@
       background-color: #ffffff;
     }
 
+    /* 3日以内の内番重複時のオレンジ警告クラス */
+    input[type="text"].naiban-warning {
+      background-color: var(--warning-bg) !important;
+      border: 1.5px solid var(--warning-border) !important;
+    }
+
     input:focus, select:focus, textarea:focus {
       outline: none;
       border-color: var(--accent-color);
@@ -200,7 +209,6 @@
       background-color: var(--accent-hover);
     }
 
-    /* 各種クリアボタン用のミニスタイル */
     .btn-sm {
       padding: 3px 8px;
       font-size: 0.75rem;
@@ -342,7 +350,7 @@
 
       <div class="form-group">
         <label for="date">日付</label>
-        <input type="date" id="date">
+        <input type="date" id="date" onchange="checkNaibanWarnings()">
       </div>
 
       <div class="form-group">
@@ -520,24 +528,24 @@
       <div class="form-group">
         <label>馬番</label>
         <div class="two-cols">
-          <input type="text" id="uma1" list="touken-list" placeholder="刀剣男士1">
-          <input type="text" id="uma2" list="touken-list" placeholder="刀剣男士2">
+          <input type="text" id="uma1" class="naiban-field" list="touken-list" placeholder="刀剣男士1" oninput="checkNaibanWarnings()">
+          <input type="text" id="uma2" class="naiban-field" list="touken-list" placeholder="刀剣男士2" oninput="checkNaibanWarnings()">
         </div>
       </div>
 
       <div class="form-group">
         <label>畑番</label>
         <div class="two-cols">
-          <input type="text" id="hata1" list="touken-list" placeholder="刀剣男士1">
-          <input type="text" id="hata2" list="touken-list" placeholder="刀剣男士2">
+          <input type="text" id="hata1" class="naiban-field" list="touken-list" placeholder="刀剣男士1" oninput="checkNaibanWarnings()">
+          <input type="text" id="hata2" class="naiban-field" list="touken-list" placeholder="刀剣男士2" oninput="checkNaibanWarnings()">
         </div>
       </div>
 
       <div class="form-group">
         <label>手合わせ</label>
         <div class="two-cols">
-          <input type="text" id="teawase1" list="touken-list" placeholder="刀剣男士1">
-          <input type="text" id="teawase2" list="touken-list" placeholder="刀剣男士2">
+          <input type="text" id="teawase1" class="naiban-field" list="touken-list" placeholder="刀剣男士1" oninput="checkNaibanWarnings()">
+          <input type="text" id="teawase2" class="naiban-field" list="touken-list" placeholder="刀剣男士2" oninput="checkNaibanWarnings()">
         </div>
       </div>
 
@@ -619,6 +627,7 @@
       const mm = String(today.getMonth() + 1).padStart(2, '0');
       const dd = String(today.getDate()).padStart(2, '0');
       document.getElementById('date').value = `${yyyy}-${mm}-${dd}`;
+      checkNaibanWarnings();
     }
 
     document.addEventListener('input', (e) => {
@@ -678,6 +687,7 @@
       document.getElementById('hata2').value = '';
       document.getElementById('teawase1').value = '';
       document.getElementById('teawase2').value = '';
+      checkNaibanWarnings();
       updatePreview();
     }
 
@@ -685,6 +695,52 @@
     function clearField(id) {
       document.getElementById(id).value = '';
       updatePreview();
+    }
+
+    // 3日以内の内番重複チェック関数
+    function checkNaibanWarnings() {
+      const currentDateVal = document.getElementById('date').value;
+      const naibanFields = document.querySelectorAll('.naiban-field');
+
+      // いったんすべての警告クラスをリセット
+      naibanFields.forEach(field => field.classList.remove('naiban-warning'));
+
+      if (!currentDateVal) return;
+
+      const currentDate = new Date(currentDateVal);
+      const reports = getAllReports();
+
+      // 過去3日間の日付文字列（YYYY-MM-DD）のリストを作成
+      const recentDates = [];
+      for (let i = 1; i <= 3; i++) {
+        const d = new Date(currentDate);
+        d.setDate(d.getDate() - i);
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        recentDates.push(`${yyyy}-${mm}-${dd}`);
+      }
+
+      // 過去3日間に内番を担当した刀剣男士の名前を収集
+      const recentNaibanMembers = new Set();
+      Object.values(reports).forEach(report => {
+        if (recentDates.includes(report.date)) {
+          if (report.uma1) recentNaibanMembers.add(report.uma1.trim());
+          if (report.uma2) recentNaibanMembers.add(report.uma2.trim());
+          if (report.hata1) recentNaibanMembers.add(report.hata1.trim());
+          if (report.hata2) recentNaibanMembers.add(report.hata2.trim());
+          if (report.teawase1) recentNaibanMembers.add(report.teawase1.trim());
+          if (report.teawase2) recentNaibanMembers.add(report.teawase2.trim());
+        }
+      });
+
+      // 現在入力されている内番メンバーと照合し、一致すればオレンジ色にする
+      naibanFields.forEach(field => {
+        const val = field.value.trim();
+        if (val && recentNaibanMembers.has(val)) {
+          field.classList.add('naiban-warning');
+        }
+      });
     }
 
     function getFormData() {
@@ -769,6 +825,7 @@
     function updatePreview() {
       const data = getFormData();
       document.getElementById('preview').textContent = generateReportText(data);
+      checkNaibanWarnings(); // 入力のたびに重複チェックを走らせる
     }
 
     function getAllReports() {
